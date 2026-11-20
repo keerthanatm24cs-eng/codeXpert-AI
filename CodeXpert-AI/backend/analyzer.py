@@ -103,20 +103,15 @@ def analyze_code(language, code):
 
     recursive = bool(recursive_functions)
 
-    # Detect recursive binary search
+# Detect recursive binary search
     recursive_binary_search = any(
-        item["calls"] >= 1
-        and re.search(r'\bmid\b', item["body"])
-        and re.search(
-            r'\b(?:low|left|start)\b',
-            item["body"]
-        )
-        and re.search(
-            r'\b(?:high|right|end)\b',
-            item["body"]
-        )
-        for item in recursive_functions
-    )
+    item["calls"] >= 1
+    and re.search(r'\bmid\b', item["body"])
+    and re.search(r'\barr\s*\[\s*mid\s*\]', item["body"])
+    and re.search(r'\b(?:low|start)\b', item["body"])
+    and re.search(r'\b(?:high|end)\b', item["body"])
+    for item in recursive_functions
+) 
 
     # Detect Fibonacci-like exponential recursion
     exponential_recursion = any(
@@ -156,7 +151,8 @@ def analyze_code(language, code):
 
     elif recursive:
         time_complexity = "O(n) - estimated"
-
+    elif string_slicing:
+        time_complexity = "O(n)"    
     elif loop_count > 0:
         time_complexity = "O(n)"
 
@@ -188,18 +184,23 @@ def analyze_code(language, code):
         r'\.append\s*\(',
         code
     ))
+    sorted_creation = bool(
+    re.search(r'\bsorted\s*\(', code)
+    or re.search(r'\.\s*sort\s*\(', code)
+)
+    string_slicing = bool(re.search(r'\[\s*:\s*:\s*-?1\s*\]', code))
 
     if matrix_creation:
-        space_complexity = "O(n²) - estimated"
+     space_complexity = "O(n²) - estimated"
 
     elif recursive_binary_search:
-        space_complexity = "O(log n) - estimated"
+     space_complexity = "O(log n) - estimated"
 
-    elif recursive or set_creation or list_creation or dictionary_creation:
-        space_complexity = "O(n) - estimated"
+    elif recursive or set_creation or list_creation or dictionary_creation or sorted_creation or string_slicing:
+     space_complexity = "O(n) - estimated"
 
     else:
-        space_complexity = "O(1) - estimated"
+     space_complexity = "O(1) - estimated"
 
     # Efficiency score
 
