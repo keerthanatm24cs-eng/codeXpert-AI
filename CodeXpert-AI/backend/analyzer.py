@@ -66,7 +66,12 @@ def analyze_code(language, code):
         code,
         re.IGNORECASE
     ))
-
+    # Detect optimized bubble sort
+    optimized_bubble_sort = bool(
+    re.search(r'\bswapped\b', code)
+    and re.search(r'\bbreak\b', code)
+    and loop_count >= 2
+)
     # Detect recursive functions
     recursive_functions = []
 
@@ -74,7 +79,24 @@ def analyze_code(language, code):
         r'def\s+(\w+)\s*\([^)]*\)\s*:',
         code
     ))
+    # Detect insertion sort
+    insertion_sort_pattern = bool(
+    re.search(r'\bkey\s*=', code)
+    and re.search(r'\bwhile\b', code)
+    and re.search(r'\bj\s*[-+]=\s*1', code)
+)
 
+    # Detect selection sort
+    selection_sort_pattern = bool(
+    re.search(r'\bmin_index\b|\bmin_idx\b', code)
+    and re.search(r'\bfor\b', code)
+)
+
+    # Detect merge sort
+    merge_sort_pattern = bool(
+    re.search(r'\bmerge\b', code)
+    and re.search(r'\bmid\b', code)
+)
     for i, match in enumerate(function_matches):
 
         function_name = match.group(1)
@@ -131,9 +153,74 @@ def analyze_code(language, code):
         and re.search(r'\[\s*\w+\s*:', item["body"])
         for item in recursive_functions
     )
-
-    # Time complexity detection
-
+    # Detect string slicing
+    string_slicing = bool(
+    re.search(r'\[\s*:\s*:\s*-?1\s*\]', code)
+    )
+    # Detect string concatenation inside a loop
+    string_concatenation = bool(
+    loop_count > 0
+    and re.search(
+        r"""(?s)\b(?P<var>\w+)\s*=\s*(['"])\2.*?\b(?P=var)\s*\+=""",
+        code
+    )
+)
+# Detect list comprehension
+    list_comprehension = bool(
+    re.search(
+        r'\[[^\]]*\bfor\s+\w+\s+in\b[^\]]*\]',
+        code
+    )
+)    
+# Detect dictionary comprehension
+    dictionary_comprehension = bool(
+    re.search(
+        r'\{[^{}]*:\s*[^{}]*\bfor\s+\w+\s+in\b[^{}]*\}',
+        code
+    )
+)
+    # Detect set comprehension
+    set_comprehension = bool(
+    re.search(
+        r'\{(?![^{}]*:)[^{}]*\bfor\s+\w+\s+in\b[^{}]*\}',
+        code
+    )
+)
+    # Detect nested list comprehension
+    nested_list_comprehension = bool(
+    re.search(
+        r'\[[^\]]*\bfor\s+\w+\s+in\b[^\]]*\bfor\s+\w+\s+in\b[^\]]*\]',
+        code
+    )
+)
+    # Detect nested dictionary comprehension
+    nested_dictionary_comprehension = bool(
+    re.search(
+        r'\{[^{}]*:\s*\{[^{}]*\bfor\s+\w+\s+in\b[^{}]*\}[^{}]*\bfor\s+\w+\s+in\b[^{}]*\}',
+        code
+    )
+)
+   # Detect nested set comprehension
+    nested_set_comprehension = bool(
+    re.search(
+        r'\{[^{}]*\bfor\s+\w+\s+in\b[^{}]*\bfor\s+\w+\s+in\b[^{}]*\}',
+        code
+    )
+)
+    # Detect generator expression
+    generator_expression = bool(
+    re.search(
+        r'\([^()]*\bfor\s+\w+\s+in\b[^()]*\)',
+        code
+    )
+)
+    # Detect nested generator expression
+    nested_generator_expression = bool(
+    re.search(
+        r'\b(?:sum|max|min)\s*\(\s*(?:sum|max|min)\s*\([^)]*\)\s+for\s+\w+\s+in\b',
+        code
+    )
+)
     if max_nested_depth >= 3:
         time_complexity = "O(n³)"
 
@@ -152,14 +239,80 @@ def analyze_code(language, code):
     elif recursive:
         time_complexity = "O(n) - estimated"
     elif string_slicing:
-        time_complexity = "O(n)"    
-    elif loop_count > 0:
-        time_complexity = "O(n)"
+     time_complexity = "O(n)"
 
+    elif string_concatenation:
+     time_complexity = "O(n²) - estimated"
+    elif nested_list_comprehension or nested_dictionary_comprehension or nested_set_comprehension:
+     time_complexity = "O(n²)"
+    elif nested_generator_expression:
+     time_complexity = "O(n²)" 
+    elif generator_expression:
+      time_complexity = "O(n)" 
+    elif list_comprehension or dictionary_comprehension or set_comprehension:
+     time_complexity = "O(n)"
+    elif loop_count > 0:
+     time_complexity = "O(n)"
     else:
         time_complexity = "O(1)"
+    # Best-case and worst-case time complexity
+    # Detect linear search
+    # Detect linear search
+    linear_search_pattern = bool(
+    re.search(r'\bfor\s+\w+\s+in\s+range\s*\(', code)
+    and re.search(r'\bif\b[^\n]*==', code)
+    and re.search(r'\breturn\b', code)
+)
+    best_case_time_complexity = time_complexity
+    worst_case_time_complexity = time_complexity
 
-    # Space complexity detection
+    short_circuit_iteration = bool(
+    re.search(r'\b(?:any|all)\s*\(', code)
+)
+   #Detect iterative binary search
+    binary_search_best_case = bool(
+    re.search(r'\bwhile\b', code)
+    and re.search(r'\bmid\b', code)
+    and re.search(r'\b(?:low|left)\s*=', code)
+    and re.search(r'\b(?:high|right)\s*=', code)
+)
+    best_case_time_complexity = time_complexity
+    worst_case_time_complexity = time_complexity
+
+    short_circuit_iteration = bool(
+    re.search(r'\b(?:any|all)\s*\(', code)
+)
+
+    if linear_search_pattern:
+     best_case_time_complexity = "O(1)"
+     worst_case_time_complexity = "O(n)"
+ 
+    elif binary_search_best_case:
+     best_case_time_complexity = "O(1)"
+     worst_case_time_complexity = "O(log n)"
+
+    elif optimized_bubble_sort:
+     best_case_time_complexity = "O(n)"
+     worst_case_time_complexity = "O(n²)"
+
+    elif insertion_sort_pattern:
+     best_case_time_complexity = "O(n)"
+     worst_case_time_complexity = "O(n²)"
+
+    elif selection_sort_pattern:
+     best_case_time_complexity = "O(n²)"
+     worst_case_time_complexity = "O(n²)"
+
+    elif merge_sort_pattern:
+     best_case_time_complexity = "O(n log n)"
+     worst_case_time_complexity = "O(n log n)"
+
+    elif short_circuit_iteration:
+     best_case_time_complexity = "O(1)"
+     worst_case_time_complexity = "O(n)"
+
+
+   # Space complexity detection
 
     set_creation = bool(re.search(
         r'\b\w+\s*=\s*set\s*\(',
@@ -188,17 +341,15 @@ def analyze_code(language, code):
     re.search(r'\bsorted\s*\(', code)
     or re.search(r'\.\s*sort\s*\(', code)
 )
-    string_slicing = bool(re.search(r'\[\s*:\s*:\s*-?1\s*\]', code))
 
-    if matrix_creation:
+
+    if matrix_creation or nested_list_comprehension or nested_dictionary_comprehension or nested_set_comprehension:
      space_complexity = "O(n²) - estimated"
-
     elif recursive_binary_search:
      space_complexity = "O(log n) - estimated"
 
-    elif recursive or set_creation or list_creation or dictionary_creation or sorted_creation or string_slicing:
+    elif recursive or set_creation or list_creation or dictionary_creation or sorted_creation or string_slicing or string_concatenation or list_comprehension or dictionary_comprehension or set_comprehension:
      space_complexity = "O(n) - estimated"
-
     else:
      space_complexity = "O(1) - estimated"
 
@@ -229,7 +380,7 @@ def analyze_code(language, code):
         suggestions.append(
             "Sorting operations generally take O(n log n) time."
         )
-
+# Time complexity detection
     if recursive:
         suggestions.append(
             "Check recursion depth and repeated calculations."
@@ -249,6 +400,8 @@ def analyze_code(language, code):
         "success": True,
         "language": language,
         "time_complexity": time_complexity,
+        "best_case_time_complexity": best_case_time_complexity,
+        "worst_case_time_complexity": worst_case_time_complexity,
         "space_complexity": space_complexity,
         "efficiency": efficiency,
         "lines_of_code": len(clean_lines),

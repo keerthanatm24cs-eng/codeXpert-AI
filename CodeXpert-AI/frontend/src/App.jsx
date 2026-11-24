@@ -331,11 +331,47 @@ export default function App() {
                 {result && <span className="result-ready"><Check size={14}/> Analysis complete</span>}
               </section>
 
-              <section className="results-grid">
-                <ResultCard icon={Clock} title="TIME COMPLEXITY" value={result?.time_complexity} description={result?.time_explanation} color="purple"/>
-                <ResultCard icon={HardDrive} title="SPACE COMPLEXITY" value={result?.space_complexity} description={result?.space_explanation} color="cyan"/>
-                <ResultCard icon={Gauge} title="EFFICIENCY SCORE" value={result?.efficiency != null ? `${result.efficiency}/100` : "—"} description={result?.efficiency_explanation || "Efficiency score based on estimated complexity."} color="green"/>
-              </section>
+            <section className="results-grid">
+             <ResultCard
+               icon={Clock}
+               title="TIME COMPLEXITY"
+               value={result?.time_complexity}
+               description={result?.time_explanation}
+               color="purple"
+              />
+
+               <ResultCard
+                icon={Clock}
+                title="BEST-CASE TIME"
+               value={result?.best_case_time_complexity || "—"}
+               description="Estimated complexity in the most favorable case."
+               color="green"
+              />
+
+              <ResultCard
+               icon={Clock}
+               title="WORST-CASE TIME"
+               value={result?.worst_case_time_complexity || "—"}
+               description="Estimated complexity in the least favorable case."
+               color="purple"
+              />
+
+              <ResultCard
+                icon={HardDrive}
+                title="SPACE COMPLEXITY"
+                value={result?.space_complexity}
+                description={result?.space_explanation}
+                color="cyan"
+              />
+
+             <ResultCard
+                icon={Gauge}
+                title="EFFICIENCY SCORE"
+                value={result?.efficiency != null ? `${result.efficiency}/100` : "—"}
+                description={result?.efficiency_explanation || "Efficiency score based on estimated complexity."}
+                color="green"
+              />
+            </section>
 
               {result && (
                 <>
