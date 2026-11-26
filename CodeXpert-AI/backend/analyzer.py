@@ -97,6 +97,110 @@ def analyze_code(language, code):
     re.search(r'\bmerge\b', code)
     and re.search(r'\bmid\b', code)
 )
+    # Detect quick sort
+    quick_sort_pattern = bool(
+    re.search(r'\bpivot\s*=', code)
+    and re.search(r'\bquick_sort\s*\(', code)
+    and re.search(r'\breturn\b', code)
+)
+    # Detect heap sort
+    heap_sort_pattern = bool(
+    re.search(r'\bheap_sort\s*\(', code)
+    and re.search(r'\bheapify\s*\(', code)
+    and re.search(r'\bleft\s*=\s*2\s*\*\s*i\s*\+\s*1', code)
+    and re.search(r'\bright\s*=\s*2\s*\*\s*i\s*\+\s*2', code)
+)
+    # Detect counting sort
+    counting_sort_pattern = bool(
+    re.search(r'\bcounting_sort\s*\(', code)
+    and re.search(r'\bcount\s*=\s*\[0\]', code)
+    and re.search(r'\bcount\s*\[\s*\w+\s*\]\s*\+=\s*1', code)
+    and re.search(r'\bmax\s*\(', code)
+)
+    # Detect radix sort
+    radix_sort_pattern = bool(
+    re.search(r'\bradix_sort\s*\(', code)
+    and re.search(r'\bcounting_sort_by_digit\s*\(', code)
+    and re.search(r'\bexp\s*\*=\s*10', code)
+    and re.search(r'\bmax_value\s*//\s*exp', code)
+)
+    # Detect bucket sort
+    bucket_sort_pattern = bool(
+    re.search(r'\bbucket_sort\s*\(', code)
+    and re.search(r'\bbuckets\s*=\s*\[', code)
+    and re.search(r'\bbuckets\s*\[[^\]]+\]\.append', code)
+    and re.search(r'\bbucket\.sort\s*\(', code)
+)
+    # Detect shell sort
+    shell_sort_pattern = bool(
+    re.search(r'\bshell_sort\s*\(', code)
+    and re.search(r'\bgap\s*=\s*\w+\s*//\s*2', code)
+    and re.search(r'\bgap\s*//=\s*2', code)
+    and re.search(r'\bwhile\s+gap\s*>\s*0', code)
+)
+    # Detect Tim Sort
+    tim_sort_pattern = bool(
+    re.search(r'\bsorted\s*\(', code)
+    or re.search(r'\.sort\s*\(', code)
+)
+    # Detect nested-loop pair generation
+    nested_pair_generation = bool(
+    re.search(r'\bpairs\s*=\s*\[\s*\]', code)
+    and re.search(r'\bfor\s+\w+\s+in\s+range\s*\(', code)
+    and re.search(r'\.append\s*\(\s*\(', code)
+    and re.search(r'\bpairs\.append\s*\(', code)
+    and loop_count >= 2
+)
+   
+    # Detect matrix multiplication
+    matrix_multiplication_pattern = bool(
+    re.search(r'\bmatrix_multiply\s*\(', code)
+    and re.search(r'\brows_A\s*=', code)
+    and re.search(r'\bcols_B\s*=', code)
+    and re.search(r'\bresult\s*=\s*\[\[', code)
+    and loop_count >= 3
+)
+    # Detect matrix transpose
+    matrix_transpose_pattern = bool(
+    re.search(r'\btranspose_matrix\s*\(', code)
+    and re.search(r'\brows\s*=\s*len\s*\(\s*matrix\s*\)', code)
+    and re.search(r'\bcols\s*=\s*len\s*\(\s*matrix\s*\[\s*0\s*\]\s*\)', code)
+    and re.search(r'\bresult\s*=\s*\[\[', code)
+    and re.search(r'\bresult\s*\[\s*j\s*\]\s*\[\s*i\s*\]\s*=', code)
+)
+    # Detect matrix addition
+    matrix_addition_pattern = bool(
+      re.search(r'\bmatrix_addition\s*\(', code)
+      and re.search(r'\brows\s*=\s*len\s*\(\s*A\s*\)', code)
+      and re.search(r'\bcols\s*=\s*len\s*\(\s*A\s*\[\s*0\s*\]\s*\)', code)
+      and re.search(r'\bresult\s*=\s*\[\[', code)
+      and re.search(
+        r'result\s*\[\s*i\s*\]\s*\[\s*j\s*\]\s*=\s*A\s*\[\s*i\s*\]\s*\[\s*j\s*\]\s*\+\s*B\s*\[\s*i\s*\]\s*\[\s*j\s*\]',
+        code
+    )
+)
+    # Detect spiral matrix traversal
+    spiral_matrix_pattern = bool(
+       re.search(r'\bspiral_order\s*\(', code)
+       and re.search(r'\bresult\s*=\s*\[\s*\]', code)
+       and re.search(r'\bmatrix\.pop\s*\(\s*0\s*\)', code)
+       and re.search(r'\brow\.pop\s*\(\s*\)', code)
+       and re.search(r'\bresult\s*\+=', code)
+)
+    # Detect Inorder Tree Traversal
+    inorder_traversal_pattern = bool(
+      re.search(r'\bdef\s+inorder\s*\(', code)
+      and re.search(r'\binorder\s*\(\s*root\.left\s*\)', code)
+      and re.search(r'\binorder\s*\(\s*root\.right\s*\)', code)
+      and re.search(r'\broot\.value\b', code)
+)
+    # Detect Preorder Tree Traversal
+    preorder_traversal_pattern = bool(
+    re.search(r'\bdef\s+preorder\s*\(', code)
+    and re.search(r'\bpreorder\s*\(\s*root\.left\s*\)', code)
+    and re.search(r'\bpreorder\s*\(\s*root\.right\s*\)', code)
+    and re.search(r'\broot\.value\b', code)
+)
     for i, match in enumerate(function_matches):
 
         function_name = match.group(1)
@@ -193,6 +297,13 @@ def analyze_code(language, code):
         code
     )
 )
+    # Detect list comprehension with membership check
+    list_membership_comprehension = bool(
+    re.search(
+        r'\[[^\]]*\bfor\s+\w+\s+in\b[^\]]*\bif\s+\w+\s+in\s+\w+',
+        code
+    )
+)
     # Detect nested dictionary comprehension
     nested_dictionary_comprehension = bool(
     re.search(
@@ -220,16 +331,47 @@ def analyze_code(language, code):
         r'\b(?:sum|max|min)\s*\(\s*(?:sum|max|min)\s*\([^)]*\)\s+for\s+\w+\s+in\b',
         code
     )
-)
-    if max_nested_depth >= 3:
-        time_complexity = "O(n³)"
+)   
+    if matrix_addition_pattern:
+     time_complexity = "O(n × m)"
+
+    elif matrix_transpose_pattern:
+     time_complexity = "O(n × m)"
+    elif list_membership_comprehension:
+     time_complexity = "O(n × m)"
+
+    elif merge_sort_pattern:
+     time_complexity = "O(n log n)"
+
+    elif tim_sort_pattern:
+     time_complexity = "O(n log n)"
+    elif shell_sort_pattern:
+     time_complexity = "O(n log n) - estimated"
+
+    elif bucket_sort_pattern:
+     time_complexity = "O(n) - average"
+    elif radix_sort_pattern:
+     time_complexity = "O(d × n)"
+
+    elif counting_sort_pattern:
+      time_complexity = "O(n + k)"
+
+    elif heap_sort_pattern:
+     time_complexity = "O(n log n)"
+    elif quick_sort_pattern:
+     time_complexity = "O(n log n) - average"
+    elif max_nested_depth >= 3:
+     time_complexity = "O(n³)"
 
     elif max_nested_depth == 2:
         time_complexity = "O(n²)"
 
     elif divide_conquer_recursion or sorting:
         time_complexity = "O(n log n)"
-
+    elif inorder_traversal_pattern:
+      time_complexity = "O(n)"
+    elif preorder_traversal_pattern:
+      time_complexity = "O(n)"  
     elif exponential_recursion:
         time_complexity = "O(2^n) - estimated"
 
@@ -281,12 +423,57 @@ def analyze_code(language, code):
 
     short_circuit_iteration = bool(
     re.search(r'\b(?:any|all)\s*\(', code)
-)
+)  
+    if inorder_traversal_pattern or preorder_traversal_pattern:
+     best_case_time_complexity = "O(n)"
+     worst_case_time_complexity = "O(n)"
+    elif matrix_addition_pattern:
+     best_case_time_complexity = "O(n × m)"
+     worst_case_time_complexity = "O(n × m)"
+    elif matrix_transpose_pattern:
+     best_case_time_complexity = "O(n × m)"
+     worst_case_time_complexity = "O(n × m)"
 
-    if linear_search_pattern:
+    elif list_membership_comprehension:
+     best_case_time_complexity = "O(n × m)"
+     worst_case_time_complexity = "O(n × m)"
+    elif nested_pair_generation:
+     best_case_time_complexity = "O(n²)"
+     worst_case_time_complexity = "O(n²)"
+ 
+    elif tim_sort_pattern:
+     best_case_time_complexity = "O(n)"
+     worst_case_time_complexity = "O(n log n)" 
+    elif shell_sort_pattern:
+      best_case_time_complexity = "O(n log n)"
+      worst_case_time_complexity = "O(n²)"
+    elif bucket_sort_pattern:
+     best_case_time_complexity = "O(n)"
+     worst_case_time_complexity = "O(n²)"
+    elif radix_sort_pattern:
+     best_case_time_complexity = "O(d × n)"
+     worst_case_time_complexity = "O(d × n)"
+    elif counting_sort_pattern:
+     best_case_time_complexity = "O(n + k)"
+     worst_case_time_complexity = "O(n + k)"
+
+    elif heap_sort_pattern:
+     best_case_time_complexity = "O(n log n)"
+     worst_case_time_complexity = "O(n log n)"
+
+    elif merge_sort_pattern:
+     best_case_time_complexity = "O(n log n)"
+     worst_case_time_complexity = "O(n log n)"
+
+    elif quick_sort_pattern:
+     best_case_time_complexity = "O(n log n)"
+     worst_case_time_complexity = "O(n²)"
+   
+
+    elif linear_search_pattern:
      best_case_time_complexity = "O(1)"
      worst_case_time_complexity = "O(n)"
- 
+
     elif binary_search_best_case:
      best_case_time_complexity = "O(1)"
      worst_case_time_complexity = "O(log n)"
@@ -303,17 +490,12 @@ def analyze_code(language, code):
      best_case_time_complexity = "O(n²)"
      worst_case_time_complexity = "O(n²)"
 
-    elif merge_sort_pattern:
-     best_case_time_complexity = "O(n log n)"
-     worst_case_time_complexity = "O(n log n)"
-
     elif short_circuit_iteration:
      best_case_time_complexity = "O(1)"
      worst_case_time_complexity = "O(n)"
 
-
    # Space complexity detection
-
+     
     set_creation = bool(re.search(
         r'\b\w+\s*=\s*set\s*\(',
         code
@@ -340,10 +522,35 @@ def analyze_code(language, code):
     sorted_creation = bool(
     re.search(r'\bsorted\s*\(', code)
     or re.search(r'\.\s*sort\s*\(', code)
-)
+)   
+    if spiral_matrix_pattern:
+     space_complexity = "O(n²)"
+    elif matrix_addition_pattern:
+     space_complexity = "O(n × m)"
+ 
+    elif matrix_transpose_pattern:
+     space_complexity = "O(n × m)"
 
+    elif matrix_multiplication_pattern:
+     space_complexity = "O(n²)"
+    elif nested_pair_generation:
+     space_complexity = "O(n²)"
+    elif heap_sort_pattern:
+     space_complexity = "O(log n)"
+    elif quick_sort_pattern:
+     space_complexity = "O(log n) - average"
+    elif radix_sort_pattern:
+     space_complexity = "O(n)"
 
-    if matrix_creation or nested_list_comprehension or nested_dictionary_comprehension or nested_set_comprehension:
+    elif counting_sort_pattern and re.search(
+     r'\bcount\s*=\s*\[0\]\s*\*\s*\(.*max.*\+?\s*1.*\)',
+     code
+) and re.search(r'\barr\s*\[\s*index\s*\]\s*=', code):
+     space_complexity = "O(k)"
+
+    elif counting_sort_pattern:
+     space_complexity = "O(n + k)"
+    elif matrix_creation or nested_list_comprehension or nested_dictionary_comprehension or nested_set_comprehension:
      space_complexity = "O(n²) - estimated"
     elif recursive_binary_search:
      space_complexity = "O(log n) - estimated"
